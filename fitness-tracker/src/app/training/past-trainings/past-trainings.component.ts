@@ -4,11 +4,12 @@ import { Exercise } from '../exercise.model';
 import { TrainingService } from '../training.service';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-past-trainings',
   templateUrl: './past-trainings.component.html',
-  styleUrl: './past-trainings.component.less',
+  styleUrls: ['./past-trainings.component.less'],
 })
 export class PastTrainingsComponent implements OnInit, AfterViewInit {
   public displayedColumns: string[] = ['date', 'name', 'duration', 'calories', 'state'];
@@ -20,7 +21,12 @@ export class PastTrainingsComponent implements OnInit, AfterViewInit {
   constructor(private trainingService: TrainingService) {}
 
   public ngOnInit(): void {
-    this.dataSource.data = this.trainingService.getCompletedOrCancelledExercises();
+    this.trainingService
+      .getCompletedOrCancelledExercises()
+      .pipe(tap((v) => console.log(v)))
+      .subscribe({
+        next: (pastExercises) => (this.dataSource.data = pastExercises),
+      });
   }
 
   public ngAfterViewInit(): void {

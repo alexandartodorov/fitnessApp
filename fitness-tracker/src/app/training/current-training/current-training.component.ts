@@ -6,24 +6,20 @@ import { TrainingService } from '../training.service';
 @Component({
   selector: 'app-current-training',
   templateUrl: './current-training.component.html',
-  styleUrl: './current-training.component.less',
+  styleUrls: ['./current-training.component.less'],
 })
 export class CurrentTrainingComponent implements OnInit {
   public progress: number = 0;
   public timer: number;
 
-  constructor(
-    private dialog: MatDialog,
-    private trainingService: TrainingService
-  ) {}
+  constructor(private dialog: MatDialog, private trainingService: TrainingService) {}
 
   public ngOnInit(): void {
     this.startOrResumeTimer();
   }
 
   public startOrResumeTimer(): void {
-    const step =
-      (this.trainingService.getOngoingExercise().duration / 100) * 1000;
+    const step = (this.trainingService.getOngoingExercise().duration / 100) * 1000;
     this.timer = window.setInterval(() => {
       this.progress += 1;
 

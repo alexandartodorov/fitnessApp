@@ -5,7 +5,7 @@ import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
-  styleUrl: './signup.component.less',
+  styleUrls: ['./signup.component.less'],
 })
 export class SignupComponent implements OnInit {
   public maxDate: Date;
