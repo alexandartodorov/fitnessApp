@@ -19,7 +19,7 @@ export class AuthService {
     private router: Router,
     private angularFireAuth: Auth,
     private trainingService: TrainingService,
-    private UIService: UIService
+    private uiService: UIService
   ) {}
 
   private isAuthenticated = false;
@@ -27,26 +27,26 @@ export class AuthService {
   public authChange = new Subject<boolean>();
 
   public registerUser(authData: AuthData): void {
-    this.UIService.loadingState$.next(true);
+    this.uiService.loadingState$.next(true);
     createUserWithEmailAndPassword(this.angularFireAuth, authData.email, authData.password)
       .then((res) => {
-        this.UIService.loadingState$.next(false);
+        this.uiService.loadingState$.next(false);
       })
       .catch((error) => {
-        this.UIService.loadingState$.next(false);
-        this.UIService.showSnackbar(error.message, null, 3000);
+        this.uiService.loadingState$.next(false);
+        this.uiService.showSnackbar(error.message, null, 3000);
       });
   }
 
   public login(authData: AuthData): void {
-    this.UIService.loadingState$.next(true);
+    this.uiService.loadingState$.next(true);
     signInWithEmailAndPassword(this.angularFireAuth, authData.email, authData.password)
       .then((res) => {
-        this.UIService.loadingState$.next(false);
+        this.uiService.loadingState$.next(false);
       })
       .catch((error) => {
-        this.UIService.loadingState$.next(false);
-        this.UIService.showSnackbar(error.message, null, 3000);
+        this.uiService.loadingState$.next(false);
+        this.uiService.showSnackbar(error.message, null, 3000);
       });
   }
 

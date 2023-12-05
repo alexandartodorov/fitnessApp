@@ -15,12 +15,12 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   private loadingSubscription: Subscription;
 
-  constructor(private authService: AuthService, private loadingService: UIService) {}
+  constructor(private authService: AuthService, private uiService: UIService) {}
 
   public ngOnInit(): void {
     this.maxDate = new Date();
     this.maxDate.setFullYear(this.maxDate.getFullYear() - 18);
-    this.loadingSubscription = this.loadingService.loadingState$.subscribe((loading) => (this.isLoading = loading));
+    this.loadingSubscription = this.uiService.loadingState$.subscribe((loading) => (this.isLoading = loading));
   }
 
   public ngOnDestroy(): void {

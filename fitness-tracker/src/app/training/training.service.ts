@@ -1,4 +1,4 @@
-import { Observable, Subject, Subscription, tap } from 'rxjs';
+import { Observable, Subject, Subscription, map, tap } from 'rxjs';
 import { Exercise } from './exercise.model';
 import { Firestore, collection, collectionData, addDoc, doc } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
@@ -14,7 +14,7 @@ export class TrainingService {
   private fireBaseSubscriptions: Subscription[] = [];
   private ongoingExercise: Exercise;
 
-  constructor(private fireStore: Firestore, private loadingService: UIService) {}
+  constructor(private fireStore: Firestore, private uiService: UIService) {}
 
   public startExercise(selectedId: string) {
     this.ongoingExercise = this.availableExercises.find((ex) => ex.id === selectedId);
@@ -46,7 +46,7 @@ export class TrainingService {
   }
 
   public initAvailableExercisesSubscription(): void {
-    this.loadingService.loadingState$.next(true);
+    this.uiService.loadingState$.next(true);
     const availableExercises$ = collectionData(collection(this.fireStore, 'availableExercises'), {
       idField: 'id',
     }) as Observable<Exercise[]>;
@@ -54,9 +54,14 @@ export class TrainingService {
     this.fireBaseSubscriptions.push(
       availableExercises$.subscribe({
         next: (exercises) => {
-          this.loadingService.loadingState$.next(false);
+          this.uiService.loadingState$.next(false);
           this.availableExercises = exercises;
           this.availableExercises$.next(exercises);
+        },
+        error: (error) => {
+          this.uiService.loadingState$.next(false);
+          this.uiService.showSnackbar('Fetching Exercises failed, please try again later', null, 3000);
+          this.availableExercises$.next(null);
         },
       })
     );

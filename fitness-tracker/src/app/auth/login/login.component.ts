@@ -15,11 +15,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private loadingSubscription: Subscription;
 
-  constructor(private authService: AuthService, private loadingService: UIService) {}
+  constructor(private authService: AuthService, private uiService: UIService) {}
 
   public ngOnInit(): void {
     this.initLoginForm();
-    this.loadingSubscription = this.loadingService.loadingState$.subscribe((isLoading) => (this.isLoading = isLoading));
+    this.loadingSubscription = this.uiService.loadingState$.subscribe((isLoading) => (this.isLoading = isLoading));
   }
 
   public ngOnDestroy(): void {
