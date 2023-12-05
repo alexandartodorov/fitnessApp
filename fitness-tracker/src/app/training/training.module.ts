@@ -8,6 +8,7 @@ import { MaterialModule } from '../material.module';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule } from '@angular/forms';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,7 @@ import { FormsModule } from '@angular/forms';
     PastTrainingsComponent,
     StopTrainingComponent,
   ],
-  imports: [CommonModule, FormsModule, MaterialModule, FlexLayoutModule],
+  imports: [CommonModule, FormsModule, MaterialModule, FlexLayoutModule, provideFirestore(() => getFirestore())],
   exports: [],
 })
 export class TrainingModule {}

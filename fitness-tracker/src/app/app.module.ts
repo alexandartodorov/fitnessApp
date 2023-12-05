@@ -11,8 +11,6 @@ import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.com
 import { AuthService } from './auth/auth.service';
 import { TrainingService } from './training/training.service';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
-import { getAuth, provideAuth } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 import { UIService } from './shared/UI.service';
 import { AuthModule } from './auth/auth.module';
@@ -29,8 +27,6 @@ import { TrainingModule } from './training/training.module';
     AuthModule,
     TrainingModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => getFirestore()),
-    provideAuth(() => getAuth()),
   ],
   providers: [AuthService, TrainingService, UIService],
   bootstrap: [AppComponent],
