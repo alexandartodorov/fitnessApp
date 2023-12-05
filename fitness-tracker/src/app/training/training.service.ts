@@ -1,29 +1,24 @@
-import { Observable, Subject, tap } from 'rxjs';
+import { Observable, Subject, Subscription, tap } from 'rxjs';
 import { Exercise } from './exercise.model';
 import { Firestore, collection, collectionData, addDoc, doc } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
+import { UIService } from '../shared/UI.service';
 
 @Injectable()
 export class TrainingService {
-  public exerciseChanged = new Subject<Exercise>();
-
-  // private availableExercises: Exercise[] = [
-  //   { id: 'crunches', name: 'Crunches', duration: 30, calories: 8 },
-  //   { id: 'touch-toes', name: 'Touch Toes', duration: 180, calories: 15 },
-  //   { id: 'side-lunges', name: 'Side Lunges', duration: 120, calories: 18 },
-  //   { id: 'burpees', name: 'Burpees', duration: 60, calories: 8 },
-  // ];
-
-  constructor(private fireStore: Firestore) {}
+  public exerciseChanged$ = new Subject<Exercise>();
+  public completedOrCancelledExercises$ = new Subject<Exercise[]>();
+  public availableExercises$ = new Subject<Exercise[]>();
 
   private availableExercises: Exercise[] = [];
-
+  private fireBaseSubscriptions: Subscription[] = [];
   private ongoingExercise: Exercise;
-  private exercises: Exercise[] = [];
+
+  constructor(private fireStore: Firestore, private loadingService: UIService) {}
 
   public startExercise(selectedId: string) {
     this.ongoingExercise = this.availableExercises.find((ex) => ex.id === selectedId);
-    this.exerciseChanged.next({ ...this.ongoingExercise });
+    this.exerciseChanged$.next({ ...this.ongoingExercise });
   }
 
   public completeExercise(): void {
@@ -34,7 +29,7 @@ export class TrainingService {
     });
 
     this.ongoingExercise = null;
-    this.exerciseChanged.next(null);
+    this.exerciseChanged$.next(null);
   }
 
   public cancelExercise(progress: number): void {
@@ -47,17 +42,22 @@ export class TrainingService {
     });
 
     this.ongoingExercise = null;
-    this.exerciseChanged.next(null);
+    this.exerciseChanged$.next(null);
   }
 
-  public getAvailableExercises(): Observable<Exercise[]> {
+  public initAvailableExercisesSubscription(): void {
+    this.loadingService.loadingState$.next(true);
     const availableExercises$ = collectionData(collection(this.fireStore, 'availableExercises'), {
       idField: 'id',
     }) as Observable<Exercise[]>;
 
-    return availableExercises$.pipe(
-      tap((exercises) => {
-        this.availableExercises = exercises;
+    this.fireBaseSubscriptions.push(
+      availableExercises$.subscribe({
+        next: (exercises) => {
+          this.loadingService.loadingState$.next(false);
+          this.availableExercises = exercises;
+          this.availableExercises$.next(exercises);
+        },
       })
     );
   }
@@ -66,12 +66,22 @@ export class TrainingService {
     return { ...this.ongoingExercise };
   }
 
-  public getCompletedOrCancelledExercises() {
+  public initCompletedOrCancelledExercisesSubscription(): void {
     const pastExercises$ = collectionData(collection(this.fireStore, 'pastExercises'), {
       idField: 'id',
     }) as Observable<Exercise[]>;
 
-    return pastExercises$;
+    this.fireBaseSubscriptions.push(
+      pastExercises$.subscribe({
+        next: (exercises) => {
+          this.completedOrCancelledExercises$.next(exercises);
+        },
+      })
+    );
+  }
+
+  public cancelSubscriptions(): void {
+    this.fireBaseSubscriptions.forEach((sub) => sub.unsubscribe());
   }
 
   private addPastExerciseToFireStore(pastExercise: Exercise) {
