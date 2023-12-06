@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { WelcomeComponent } from './welcome/welcome.component';
+import { authGuard } from './auth/auth.guard';
 
 const routes: Routes = [
   {
@@ -11,6 +12,7 @@ const routes: Routes = [
   {
     path: 'training',
     loadChildren: () => import('./training/training.module').then((m) => m.TrainingModule),
+    canMatch: [authGuard],
   },
 ];
 
