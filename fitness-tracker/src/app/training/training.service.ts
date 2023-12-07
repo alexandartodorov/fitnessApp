@@ -3,7 +3,8 @@ import { Exercise } from './exercise.model';
 import { Firestore, collection, collectionData, addDoc, doc } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 import * as UI from '../shared/ui.actions';
-import * as fromRoot from '../app.reducer';
+import * as fromTraining from './training.reducer';
+import * as Training from './training.actions';
 import { Store } from '@ngrx/store';
 import { UIService } from '../shared/ui.service';
 
@@ -17,11 +18,10 @@ export class TrainingService {
   private fireBaseSubscriptions: Subscription[] = [];
   private ongoingExercise: Exercise;
 
-  constructor(private fireStore: Firestore, private uiService: UIService, private store: Store<fromRoot.State>) {}
+  constructor(private fireStore: Firestore, private uiService: UIService, private store: Store<fromTraining.State>) {}
 
   public startExercise(selectedId: string) {
-    this.ongoingExercise = this.availableExercises.find((ex) => ex.id === selectedId);
-    this.exerciseChanged$.next({ ...this.ongoingExercise });
+    this.store.dispatch(new Training.StartExercise(selectedId));
   }
 
   public completeExercise(): void {
@@ -31,8 +31,7 @@ export class TrainingService {
       state: 'completed',
     });
 
-    this.ongoingExercise = null;
-    this.exerciseChanged$.next(null);
+    this.store.dispatch(new Training.StopExercise());
   }
 
   public cancelExercise(progress: number): void {
@@ -44,8 +43,7 @@ export class TrainingService {
       state: 'cancelled',
     });
 
-    this.ongoingExercise = null;
-    this.exerciseChanged$.next(null);
+    this.store.dispatch(new Training.StopExercise());
   }
 
   public initAvailableExercisesSubscription(): void {
@@ -58,13 +56,10 @@ export class TrainingService {
     this.fireBaseSubscriptions.push(
       availableExercises$.subscribe({
         next: (exercises) => {
-          // this.uiService.loadingState$.next(false);
           this.store.dispatch(new UI.StopLoading());
-          this.availableExercises = exercises;
-          this.availableExercises$.next(exercises);
+          this.store.dispatch(new Training.SetAvailableExercises(exercises));
         },
         error: (error) => {
-          // this.uiService.loadingState$.next(false);
           this.store.dispatch(new UI.StopLoading());
           this.uiService.showSnackbar('Fetching Exercises failed, please try again later', null, 3000);
           this.availableExercises$.next(null);
@@ -85,7 +80,7 @@ export class TrainingService {
     this.fireBaseSubscriptions.push(
       pastExercises$.subscribe({
         next: (exercises) => {
-          this.completedOrCancelledExercises$.next(exercises);
+          this.store.dispatch(new Training.SetFinishedExercises(exercises));
         },
       })
     );
