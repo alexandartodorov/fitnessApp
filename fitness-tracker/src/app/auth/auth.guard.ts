@@ -1,23 +1,13 @@
-import { Injectable, inject } from '@angular/core';
-import {
-  CanActivate,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  Router,
-  CanActivateFn,
-  UrlTree,
-} from '@angular/router';
+import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, CanActivateFn, UrlTree } from '@angular/router';
 
-import { AuthService } from './auth.service';
-import { Observable } from 'rxjs';
+import { Observable, take } from 'rxjs';
+import { Store } from '@ngrx/store';
+import * as fromRoot from '../app.reducer';
 
 export const authGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
-  if (inject(AuthService).isAuth()) {
-    return true;
-  } else {
-    return inject(Router).navigate(['/login']);
-  }
+  return inject(Store).select(fromRoot.getIsAuth).pipe(take(1));
 };

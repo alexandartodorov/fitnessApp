@@ -2,10 +2,10 @@ import { Observable, Subject, Subscription, map, tap } from 'rxjs';
 import { Exercise } from './exercise.model';
 import { Firestore, collection, collectionData, addDoc, doc } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
-import { UIService } from '../shared/ui.service';
 import * as UI from '../shared/ui.actions';
 import * as fromRoot from '../app.reducer';
 import { Store } from '@ngrx/store';
+import { UIService } from '../shared/ui.service';
 
 @Injectable()
 export class TrainingService {
