@@ -1,4 +1,4 @@
-import { Observable, Subject, Subscription, take } from 'rxjs';
+import { Observable, Subscription, take } from 'rxjs';
 import { Exercise } from './exercise.model';
 import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
@@ -10,10 +10,6 @@ import { UIService } from '../shared/ui.service';
 
 @Injectable()
 export class TrainingService {
-  public exerciseChanged$ = new Subject<Exercise>();
-  public completedOrCancelledExercises$ = new Subject<Exercise[]>();
-  public availableExercises$ = new Subject<Exercise[]>();
-
   private fireBaseSubscriptions: Subscription[] = [];
 
   constructor(private fireStore: Firestore, private uiService: UIService, private store: Store<fromTraining.State>) {}
@@ -69,7 +65,6 @@ export class TrainingService {
         error: (error) => {
           this.store.dispatch(new UI.StopLoading());
           this.uiService.showSnackbar('Fetching Exercises failed, please try again later', null, 3000);
-          this.availableExercises$.next(null);
         },
       })
     );
