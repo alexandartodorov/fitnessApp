@@ -1,6 +1,6 @@
-import { Observable, Subject, Subscription, map, tap } from 'rxjs';
+import { Observable, Subject, Subscription, take } from 'rxjs';
 import { Exercise } from './exercise.model';
-import { Firestore, collection, collectionData, addDoc, doc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
 import { Injectable } from '@angular/core';
 import * as UI from '../shared/ui.actions';
 import * as fromTraining from './training.reducer';
@@ -14,9 +14,7 @@ export class TrainingService {
   public completedOrCancelledExercises$ = new Subject<Exercise[]>();
   public availableExercises$ = new Subject<Exercise[]>();
 
-  private availableExercises: Exercise[] = [];
   private fireBaseSubscriptions: Subscription[] = [];
-  private ongoingExercise: Exercise;
 
   constructor(private fireStore: Firestore, private uiService: UIService, private store: Store<fromTraining.State>) {}
 
@@ -25,29 +23,38 @@ export class TrainingService {
   }
 
   public completeExercise(): void {
-    this.addPastExerciseToFireStore({
-      ...this.ongoingExercise,
-      date: new Date(),
-      state: 'completed',
-    });
+    this.store
+      .select(fromTraining.getActiveExercise)
+      .pipe(take(1))
+      .subscribe((ex) => {
+        this.addPastExerciseToFireStore({
+          ...ex,
+          date: new Date(),
+          state: 'completed',
+        });
 
-    this.store.dispatch(new Training.StopExercise());
+        this.store.dispatch(new Training.StopExercise());
+      });
   }
 
   public cancelExercise(progress: number): void {
-    this.addPastExerciseToFireStore({
-      ...this.ongoingExercise,
-      duration: this.ongoingExercise.duration * (progress / 100),
-      calories: this.ongoingExercise.calories * (progress / 100),
-      date: new Date(),
-      state: 'cancelled',
-    });
+    this.store
+      .select(fromTraining.getActiveExercise)
+      .pipe(take(1))
+      .subscribe((ex) => {
+        this.addPastExerciseToFireStore({
+          ...ex,
+          duration: ex.duration * (progress / 100),
+          calories: ex.calories * (progress / 100),
+          date: new Date(),
+          state: 'cancelled',
+        });
 
-    this.store.dispatch(new Training.StopExercise());
+        this.store.dispatch(new Training.StopExercise());
+      });
   }
 
   public initAvailableExercisesSubscription(): void {
-    // this.uiService.loadingState$.next(true);
     this.store.dispatch(new UI.StartLoading());
     const availableExercises$ = collectionData(collection(this.fireStore, 'availableExercises'), {
       idField: 'id',
@@ -66,10 +73,6 @@ export class TrainingService {
         },
       })
     );
-  }
-
-  public getOngoingExercise(): Exercise {
-    return { ...this.ongoingExercise };
   }
 
   public initCompletedOrCancelledExercisesSubscription(): void {
