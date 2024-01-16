@@ -8,3 +8,5 @@
 
 
 To start the project: `npm start`
+
+> This project is built for learning purposes, following a tutorial by Maximilian Schwarzmuller.
