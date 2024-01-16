@@ -51,7 +51,7 @@ export class TrainingService {
   }
 
   public initAvailableExercisesSubscription(): void {
-    this.store.dispatch(new UI.StartLoading());
+    this.store.dispatch(UI.StartLoading());
     const availableExercises$ = collectionData(collection(this.fireStore, 'availableExercises'), {
       idField: 'id',
     }) as Observable<Exercise[]>;
@@ -59,11 +59,11 @@ export class TrainingService {
     this.fireBaseSubscriptions.push(
       availableExercises$.subscribe({
         next: (exercises) => {
-          this.store.dispatch(new UI.StopLoading());
+          this.store.dispatch(UI.StopLoading());
           this.store.dispatch(new Training.SetAvailableExercises(exercises));
         },
         error: (error) => {
-          this.store.dispatch(new UI.StopLoading());
+          this.store.dispatch(UI.StopLoading());
           this.uiService.showSnackbar('Fetching Exercises failed, please try again later', null, 3000);
         },
       })

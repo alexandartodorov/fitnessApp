@@ -1,4 +1,4 @@
-import { Action } from '@ngrx/store';
+import { Action, createAction, props } from '@ngrx/store';
 import { Exercise } from './exercise.model';
 
 export const SET_AVAILABLE_EXERCISES = '[Training] Set Available Exercises';
@@ -11,6 +11,10 @@ export class SetAvailableExercises implements Action {
 
   constructor(public payload: Exercise[]) {}
 }
+
+// action creator
+// const action = createAction('my_action', props<{ value: number }>());
+// console.log(action({ value: 42 }));
 
 export class SetFinishedExercises implements Action {
   public readonly type = SET_FINISHED_EXERCISES;

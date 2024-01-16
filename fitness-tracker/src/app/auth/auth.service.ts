@@ -28,25 +28,25 @@ export class AuthService {
   ) {}
 
   public registerUser(authData: AuthData): void {
-    this.store.dispatch(new UI.StartLoading());
+    this.store.dispatch(UI.StartLoading());
     createUserWithEmailAndPassword(this.angularFireAuth, authData.email, authData.password)
       .then((res) => {
-        this.store.dispatch(new UI.StopLoading());
+        this.store.dispatch(UI.StopLoading());
       })
       .catch((error) => {
-        this.store.dispatch(new UI.StopLoading());
+        this.store.dispatch(UI.StopLoading());
         this.uiService.showSnackbar(error.message, null, 3000);
       });
   }
 
   public login(authData: AuthData): void {
-    this.store.dispatch(new UI.StartLoading());
+    this.store.dispatch(UI.StartLoading());
     signInWithEmailAndPassword(this.angularFireAuth, authData.email, authData.password)
       .then((res) => {
-        this.store.dispatch(new UI.StopLoading());
+        this.store.dispatch(UI.StopLoading());
       })
       .catch((error) => {
-        this.store.dispatch(new UI.StopLoading());
+        this.store.dispatch(UI.StopLoading());
         this.uiService.showSnackbar(error.message, null, 3000);
       });
   }
